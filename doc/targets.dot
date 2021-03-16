@@ -1,179 +1,176 @@
 digraph targets {
 
-  //rankdir=LR
+  rankdir=LR
   
-  subgraph st_mbr_bootloader {
-    label = "stboot-installation/mbr-bootloader/makefile";
-    // targets
-    mbr_image [label="out/stboot-installation/mbr-bootloader/stboot_mbr_installation.img"]
-    mbr_boot_partition [label="out/stboot-installation/mbr-bootloader/boot_partition.vfat"]
-    mbr_kernel [label="out/stboot-installation/mbr-bootloader/linuxboot.vmlinuz"]
-    syslinux [label="cache/syslinux/syslinux-6.03/bios/mtools/syslinux"]
-    syslinux_config [label="out/stboot-installation/mbr-bootloader/syslinux.cfg"]
-    // scripts
-    mbr_build_image [label="stboot-installation/mbr-bootloader/build_image.sh"]
-    mbr_build_boot_filesystem [label="stboot-installation/mbr-bootloader/build_boot_filesystem.sh"]
-    fetch_syslinux [label="stboot-installation/mbr-bootloader/fetch_syslinux.sh"]
-    build_syslinux_config [label="stboot-installation/mbr-bootloader/build_syslinux_config.sh"]
-    
-    {mbr_boot_partition data_partition} -> mbr_build_image -> mbr_image
-    {mbr_kernel syslinux_config host_config syslinux} -> mbr_build_boot_filesystem -> mbr_boot_partition
-    {ST_LINUXBOOT_CMDLINE ST_MBR_BOOTLOADER_KERNEL_CONFIG ST_MBR_BOOTLOADER_KERNEL_VERSION} -> "KERNEL_TARGET(mbr)" -> mbr_kernel
-    fetch_syslinux -> syslinux
-    build_syslinux_config -> syslinux_config
+  // TARGETS
+  //
+  // stboot-installation/mbr-bootloader/makefile
+  mbr_image [label="out/stboot-installation/mbr-bootloader/stboot_mbr_installation.img"]
+  mbr_boot_partition [label="out/stboot-installation/mbr-bootloader/boot_partition.vfat"]
+  mbr_kernel [label="out/stboot-installation/mbr-bootloader/linuxboot.vmlinuz"]
+  syslinux [label="cache/syslinux/syslinux-6.03/bios/mtools/syslinux"]
+  syslinux_config [label="out/stboot-installation/mbr-bootloader/syslinux.cfg"]
+  // stboot-installation/efi-application/makefile
+  efi_image [label="out/stboot-installation/efi-application/stboot_efi_installation.img"]
+  efi_boot_partition [label="out/stboot-installation/efi-application/boot_partition.vfat"]
+  efi_kernel [label="out/stboot-installation/efi-application/linuxboot.vmlinuz"]
+  // stboot-installation/common/makefile
+  data_partition [label="out/stboot-installation/data_partition.ext4"]
+  initramfs [label="out/stboot-installation/initramfs-linuxboot.cpio.gz"]
+  host_config [label="out/stboot-installation/host_configuration.json"]
+  security_config [label="out/stboot-installation/security_configuration.json"]
+  os_out [label="out/os-packages/*"]
+  // operating-system/makefile
+  tboot [label="out/tboot/tboot.gz"]
+  acm [label="cache/ACMs"]
+  // operation-system/debos/makefile
+  debian_kernel [label="out/operating-system/debian-buster-amd64.vmlinuz"]
+  debian_initramfs [label="out/operating-system/debian-buster-amd64.cpio.gz"]
+  debian_recipe [label="operating-system/debos/debian.yaml"]
+  ubuntu18_kernel [label="out/operating-system/ubuntu-bionic-amd64.vmlinuz"]
+  ubuntu18_initramfs [label="out/operating-system/ubuntu-bionic-amd64.cpio.gz"]
+  ubuntu20_kernel [label="out/operating-system/ubuntu-focal-amd64.vmlinuz"]
+  ubuntu20_initramfs [label="out/operating-system/ubuntu-focal-amd64.cpio.gz"]
+  ubuntu_recipe [label="operating-system/debos/ubuntu.yaml"]
+  // modules/go.mk
+  debos [label="cache/go/bin/debos"]
+  uroot [label="cache/go/bin/u-root"]
+  stmanager [label="cache/go/bin/stmanager"]
+  acmgrebber [label="cache/go/bin/sinit-acm-grebber"]
+  //cpu [label="cache/go/bin/cpu"]
+  cpud [label="cache/go/bin/cpud"]
+  // Makefile
+  dotconfig [label="run.config"]
+  cpu_private_key [label="out/keys/scpu_keys/cpu_rsa"]
+  cpu_public_key [label="out/keys/scpu_keys/cpu_rsa.pub"]
+  ssh_private_key [label="out/keys/scpu_keys/ssh_host_rsa_key"]
+  ssh_public_key [label="out/keys/scpu_keys/ssh_host_rsa_key.pub"]
+  root_key [label="out/keys/signing_keys/root.key"]
+  root_cert [label="out/keys/signing_keys/root.cert"]
+  signing_keys [label="out/keys/signing_keys/signing-key-{1-3}.key"]
+  signing_certs [label="out/keys/signing_keys/signing-key-{1-3}.cert"]
+  boot_order 
+  os_pkg_zip [label="os-pkg-date.zip"]
+  os_pkg_manifest [label="os-pkg-date.json"]
+  keygen_sign [label="keygen-sign"]
+  keygen_cpu [label="keygen-cpu"]
+  sign [label="sign"]
+  //
+  // SCRIPTS
+  //
+  // stboot-installation/mbr-bootloader/makefile
+  mbr_build_image [label="stboot-installation/mbr-bootloader/build_image.sh"]
+  mbr_build_boot_filesystem [label="stboot-installation/mbr-bootloader/build_boot_filesystem.sh"]
+  fetch_syslinux [label="stboot-installation/mbr-bootloader/fetch_syslinux.sh"]
+  build_syslinux_config [label="stboot-installation/mbr-bootloader/build_syslinux_config.sh"]
+  // stboot-installation/efi-application/makefile
+  efi_build_image [label="stboot-installation/efi-application/build_image.sh"]
+  efi_build_boot_filesystem [label="stboot-installation/efi-application/build_boot_filesystem.sh"]
+  // stboot-installation/common/makefile
+  build_data_filesystem [label="stboot-installation/common/build_data_filesystem.sh"]
+  build_initramfs [label="stboot-installation/common/build_initramfs.sh"]
+  build_host_config [label="stboot-installation/common/build_host_config.sh"]
+  build_security_config [label="stboot-installation/common/build_security_config.sh"]
+  // Makefile
+  make_signing_keys [label="scripts/make_signing_keys.sh"]
+  //
+  // GRAPHS
+  //
+  // stboot-installation/mbr-bootloader/makefile
+  {mbr_boot_partition data_partition} -> mbr_build_image -> mbr_image
+  {mbr_kernel syslinux_config host_config syslinux} -> mbr_build_boot_filesystem -> mbr_boot_partition
+  {
+    ST_LINUXBOOT_CMDLINE
+    ST_MBR_BOOTLOADER_KERNEL_CONFIG
+    ST_MBR_BOOTLOADER_KERNEL_VERSION
+  } -> "KERNEL_TARGET(mbr)" -> mbr_kernel
+  fetch_syslinux -> syslinux
+  build_syslinux_config -> syslinux_config
+  // stboot-installation/efi-application/makefile
+  {efi_boot_partition data_partition} -> efi_build_image -> efi_image
+  {efi_kernel syslinux_config host_config syslinux} -> efi_build_boot_filesystem -> efi_boot_partition
+  {
+    initramfs
+    ST_LINUXBOOT_CMDLINE ST_EFI_APPLICATION_EFISTUB_KERNEL_VERSION ST_EFI_APPLICATION_EFISTUB_KERNEL_CONFIG
+  } -> "KERNEL_TARGET(efi)" -> efi_kernel
+  // stboot-installation/common/makefile
+  {
+    os_out
+    ST_DATA_PARTITION_SZIZE
+  } -> build_data_filesystem -> data_partition
+  {
+    uroot
+    security_config
+    cpu_public_key ssh_private_key cpud
+    ST_LINUXBOOT_VARIANT ST_SIGNING_ROOT
+  } -> build_initramfs -> initramfs
+  {
+    ST_PROVISIONING_SERVER_URL ST_NETWORK_MODE ST_HOST_IP ST_HOST_GATEWAY ST_HOST_DNS
+  } -> build_host_config -> host_config
+  {
+    ST_SIGNING_ROOT ST_NUM_SIGNATURES ST_BOOT_MODE ST_USE_PKG_CACHE
+  } -> build_security_config -> security_config
+  // operation-system/debos/makefile
+  {debos debian_recipe} -> {debian_kernel debian_initramfs}
+  {debos ubuntu_recipe} -> {ubuntu18_kernel ubuntu18_initramfs}
+  {debos ubuntu_recipe} -> {ubuntu20_kernel ubuntu20_initramfs}
+  // modules/go.mk
+  ST_UROOT_DEV_BRANCH -> uroot
+  acmgrebber -> acm
+  // Makefile
+  dotconfig -> {
+    // config variables
+    ST_BOOT_MODE
+    ST_DATA_PARTITION_SZIZE
+    ST_EFI_APPLICATION_EFISTUB_KERNEL_CONFIG
+    ST_HOST_DNS
+    ST_HOST_GATEWAY
+    ST_HOST_IP
+    ST_KERNEL_VERSION
+    ST_LINUXBOOT_CMDLINE
+    ST_LINUXBOOT_VARIANT
+    ST_MBR_BOOTLOADER_KERNEL_CONFIG
+    ST_NETWORK_MODE
+    ST_NUM_SIGNATURES
+    ST_OS_PKG_ACM
+    ST_OS_PKG_CMDLINE
+    ST_OS_PKG_INITRAMFS
+    ST_OS_PKG_KERNEL
+    ST_OS_PKG_LABEL
+    ST_OS_PKG_NAME
+    ST_OS_PKG_TBOOT_ARGS
+    ST_OS_PKG_TBOOT
+    ST_OS_PKG_URL
+    ST_PROVISIONING_SERVER_URL
+    ST_QEMU_MEM
+    ST_SIGNING_ROOT
+    ST_SSH_UPLOAD_PATH
+    ST_SSH_UPLOAD_SERVER
+    ST_SSH_UPLOAD_USER
+    ST_UROOT_DEV_BRANCH
+    ST_USE_PKG_CACHE
+    ST_LINUXBOOT_CMDLINE
+    ST_MBR_BOOTLOADER_KERNEL_CONFIG
+    ST_MBR_BOOTLOADER_KERNEL_VERSION
   }
-  
-  subgraph st_efi_application {
-    label = "stboot-installation/efi-application/makefile";
-    // targets
-    efi_image [label="out/stboot-installation/efi-application/stboot_efi_installation.img"]
-    efi_boot_partition [label="out/stboot-installation/efi-application/boot_partition.vfat"]
-    efi_kernel [label="out/stboot-installation/efi-application/linuxboot.vmlinuz"]
-    // scripts
-    efi_build_image [label="stboot-installation/efi-application/build_image.sh"]
-    efi_build_boot_filesystem [label="stboot-installation/efi-application/build_boot_filesystem.sh"]
-    
-    {efi_boot_partition data_partition} -> efi_build_image -> efi_image
-    {efi_kernel syslinux_config host_config syslinux} -> efi_build_boot_filesystem -> efi_boot_partition
-    {initramfs ST_LINUXBOOT_CMDLINE ST_EFI_APPLICATION_EFISTUB_KERNEL_VERSION ST_EFI_APPLICATION_EFISTUB_KERNEL_CONFIG} -> "KERNEL_TARGET(efi)" -> efi_kernel
+  stmanager -> keygen_sign -> make_signing_keys -> {
+    root_key root_cert
+    signing_keys signing_certs
   }
-  
-  subgraph st_common {
-    label = "stboot-installation/common/makefile";
-    //
-    // targets
-    data_partition [label="out/stboot-installation/data_partition.ext4"]
-    initramfs [label="out/stboot-installation/initramfs-linuxboot.cpio.gz"]
-    host_config [label="out/stboot-installation/host_configuration.json"]
-    security_config [label="out/stboot-installation/security_configuration.json"]
-    os_out [label="out/os-packages/*"]
-    // scripts
-    build_data_filesystem [label="stboot-installation/common/build_data_filesystem.sh"]
-    build_initramfs [label="stboot-installation/common/build_initramfs.sh"]
-    build_host_config [label="stboot-installation/common/build_host_config.sh"]
-    build_security_config [label="stboot-installation/common/build_security_config.sh"]
-    
-    {ST_DATA_PARTITION_SZIZE os_out} -> build_data_filesystem -> data_partition
-    {ST_LINUXBOOT_VARIANT uroot security_config ST_SIGNING_ROOT cpu_public_key ssh_private_key cpud} -> build_initramfs -> initramfs
-    {ST_PROVISIONING_SERVER_URL ST_NETWORK_MODE ST_HOST_IP ST_HOST_GATEWAY ST_HOST_DNS} -> build_host_config -> host_config
-    {ST_SIGNING_ROOT ST_NUM_SIGNATURES ST_BOOT_MODE ST_USE_PKG_CACHE} -> build_security_config -> security_config
+  keygen_cpu -> {
+    cpu_private_key cpu_public_key
+    ssh_private_key ssh_public_key
   }
-
-  subgraph os_debos {
-    label = "operation-system/debos/makefile";
-    // targets
-    debian_kernel [label="out/operating-system/debian-buster-amd64.vmlinuz"]
-    debian_initramfs [label="out/operating-system/debian-buster-amd64.cpio.gz"]
-    debian_recipe [label="operating-system/debos/debian.yaml"]
-    ubuntu18_kernel [label="out/operating-system/ubuntu-bionic-amd64.vmlinuz"]
-    ubuntu18_initramfs [label="out/operating-system/ubuntu-bionic-amd64.cpio.gz"]
-    ubuntu20_kernel [label="out/operating-system/ubuntu-focal-amd64.vmlinuz"]
-    ubuntu20_initramfs [label="out/operating-system/ubuntu-focal-amd64.cpio.gz"]
-    ubuntu_recipe [label="operating-system/debos/ubuntu.yaml"]
-
-    {debos debian_recipe} -> {debian_kernel debian_initramfs}
-    {debos ubuntu_recipe} -> {ubuntu18_kernel ubuntu18_initramfs}
-    {debos ubuntu_recipe} -> {ubuntu20_kernel ubuntu20_initramfs}
-  }
-
-  subgraph os {
-    label = "operating-system/makefile";
-    // targets
-    tboot [label="out/tboot/tboot.gz"]
-    acm [label="cache/ACMs"]
-
-  }
-
-  subgraph go {
-    label = "modules/go.mk";
-    // targets
-    debos [label="cache/go/bin/debos"]
-    uroot [label="cache/go/bin/u-root"]
-    stmanager [label="cache/go/bin/stmanager"]
-    acmgrebber [label="cache/go/bin/sinit-acm-grebber"]
-    //cpu [label="cache/go/bin/cpu"]
-    cpud [label="cache/go/bin/cpud"]
-
-    ST_UROOT_DEV_BRANCH -> uroot
-    acmgrebber -> acm
-  }
-
-  subgraph makefile {
-    label = "Makefile";
-    // targets
-    dotconfig [label="run.config"]
-    cpu_private_key [label="out/keys/scpu_keys/cpu_rsa"]
-    cpu_public_key [label="out/keys/scpu_keys/cpu_rsa.pub"]
-    ssh_private_key [label="out/keys/scpu_keys/ssh_host_rsa_key"]
-    ssh_public_key [label="out/keys/scpu_keys/ssh_host_rsa_key.pub"]
-    root_key [label="out/keys/signing_keys/root.key"]
-    root_cert [label="out/keys/signing_keys/root.cert"]
-    signing_keys [label="out/keys/signing_keys/signing-key-{1-3}.key"]
-    signing_certs [label="out/keys/signing_keys/signing-key-{1-3}.cert"]
-    boot_order 
-    os_pkg_zip [label="os-pkg-date.zip"]
-    os_pkg_manifest [label="os-pkg-date.json"]
-    // phony targets
-    keygen_sign [label="keygen-sign"]
-    keygen_cpu [label="keygen-cpu"]
-    sign [label="sign"]
-    // scripts
-    make_signing_keys [label="scripts/make_signing_keys.sh"]
-
-    dotconfig -> {
-      // config variables
-      ST_BOOT_MODE
-      ST_DATA_PARTITION_SZIZE
-      ST_EFI_APPLICATION_EFISTUB_KERNEL_CONFIG
-      ST_HOST_DNS
-      ST_HOST_GATEWAY
-      ST_HOST_IP
-      ST_KERNEL_VERSION
-      ST_LINUXBOOT_CMDLINE
-      ST_LINUXBOOT_VARIANT
-      ST_MBR_BOOTLOADER_KERNEL_CONFIG
-      ST_NETWORK_MODE
-      ST_NUM_SIGNATURES
-      ST_OS_PKG_ACM
-      ST_OS_PKG_CMDLINE
-      ST_OS_PKG_INITRAMFS
-      ST_OS_PKG_KERNEL
-      ST_OS_PKG_LABEL
-      ST_OS_PKG_NAME
-      ST_OS_PKG_TBOOT_ARGS
-      ST_OS_PKG_TBOOT
-      ST_OS_PKG_URL
-      ST_PROVISIONING_SERVER_URL
-      ST_QEMU_MEM
-      ST_SIGNING_ROOT
-      ST_SSH_UPLOAD_PATH
-      ST_SSH_UPLOAD_SERVER
-      ST_SSH_UPLOAD_USER
-      ST_UROOT_DEV_BRANCH
-      ST_USE_PKG_CACHE
-      ST_LINUXBOOT_CMDLINE
-      ST_MBR_BOOTLOADER_KERNEL_CONFIG
-      ST_MBR_BOOTLOADER_KERNEL_VERSION
-    }
-    stmanager -> keygen_sign -> make_signing_keys -> {
-      root_key root_cert
-      signing_keys signing_certs
-    }
-    keygen_cpu -> {
-      cpu_private_key cpu_public_key
-      ssh_private_key ssh_public_key
-    }
-    {
-      stmanager tboot acm
-      root_key root_cert signing_keys signing_certs
-      debian_kernel debian_initramfs
-      ubuntu18_kernel ubuntu18_initramfs
-      ubuntu20_kernel ubuntu20_initramfs
-    } -> sign ->
-    {
-      boot_order
-      os_pkg_zip
-      os_pkg_manifest
-    } -> os_out
-  }
+  {
+    stmanager tboot acm
+    root_key root_cert signing_keys signing_certs
+    debian_kernel debian_initramfs
+    ubuntu18_kernel ubuntu18_initramfs
+    ubuntu20_kernel ubuntu20_initramfs
+  } -> sign ->
+  {
+    boot_order
+    os_pkg_zip
+    os_pkg_manifest
+  } -> os_out
 }
