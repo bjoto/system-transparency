@@ -7,7 +7,6 @@ scripts := scripts
 stboot-installation := stboot-installation
 
 newest-ospkg := .newest-ospkg.zip
-initramfs := $(out)/stboot-installation/initramfs-linuxboot.cpio.gz
 
 # reproducible builds
 LANG:=C
