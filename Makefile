@@ -47,6 +47,7 @@ ifneq ($(TERM),)
 NORMAL_COLOR = $(shell tput sgr0)
 #green
 DONE_COLOR = $(shell tput setaf 2)
+OK_COLOR = $(DONE_COLOR)
 # blue
 INFO_COLOR = $(shell tput setaf 4)
 # yellow
@@ -179,6 +180,8 @@ ifneq ($(strip $(ST_OS_PKG_INITRAMFS)),)
 OS_INITRAMFS := $(patsubst "%",%,$(ST_OS_PKG_INITRAMFS))
 endif
 
+include check.mk
+
 include modules/go.mk
 include modules/linux.mk
 
@@ -228,12 +231,6 @@ help:
 	@echo  '*** Run in QEMU'
 	@echo  '  run-mbr-bootloader           - Run MBR bootloader'
 	@echo  '  run-efi-application          - Run EFI application'
-
-check:
-	@$(call LOG,INFO,Check build dependencies)
-	$(scripts)/checks.sh
-	@echo
-	@$(call LOG,DONE,Check build dependencies)
 
 config:
 	if [[ ! -d contrib/boards/$(BOARD) ]]; then \

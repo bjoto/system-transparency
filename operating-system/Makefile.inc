@@ -12,7 +12,7 @@ include $(op)/debos/Makefile.inc
 tboot_code := $(tboot-cache)/code/.unpack
 
 _TBOOT_CFLAGS="-Wno-error=address-of-packed-member"
-gcc_version := $(shell gcc -dumpversion | cut -d . -f 1)
+gcc_version := $(shell gcc -dumpversion 2>/dev/null| cut -d . -f 1)
 
 ifeq ($(shell [[ "$(gcc_version)" -ge "9" ]] && echo $$?),0)
 tboot_env := CFLAGS=$(_TBOOT_CFLAGS) TBOOT_CFLAGS=$(_TBOOT_CFLAGS)
