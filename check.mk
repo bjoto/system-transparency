@@ -19,9 +19,9 @@ check_bins += bison
 # libelf-dev
 check_libs += libelf
 ### tboot
-# mercurial
+dep_pkgs += mercurial
 check_bins += hg
-# libtspi-dev
+dep_pkgs += libtspi-dev
 check_libs += trousers
 check_trousers_header += trousers/tss.h
 ### stboot-installation
@@ -31,25 +31,37 @@ check_bins += e2mkdir
 ### debos
 ## native env
 ifeq ($(DEBIAN-OS),y)
-# libglib2.0-dev
+dep_pkgs += libglib2.0-dev
 check_debos_libs += glib-2.0
 check_libs += gobject-2.0
-# libostree-dev
+dep_pkgs += libostree-dev
 check_libs += ostree-1
 check_bins += debootstrap
 endif
-# systemd-container
+dep_pkgs += systemd-container
 check_bins += systemd-nspawn
 ## docker env
 check_bins += docker
 ## podman env
 #check_bins += podman
 ### qemu test
+dep_pkgs += qemu-kvm
 # swtpm(https://github.com/stefanberger/swtpm)
-# swtpm deps: autoconf libtool libtasn1-6-dev libtpms(https://github.com/stefanberger/libtpms) libgnutls28-dev expect gawk socat python3-pip gnutls-bin libseccomp-dev
 check_bins += swtpm
 check_bins += swtpm_cert
 check_bins += swtpm_setup
+# swtpm deps:
+#libtpms(https://github.com/stefanberger/libtpms)
+dep_pkgs += autoconf
+dep_pkgs += libtool
+dep_pkgs += libtasn1-6-dev
+dep_pkgs += libgnutls28-dev
+dep_pkgs += expect
+dep_pkgs += gawk
+dep_pkgs += socat
+dep_pkgs += python3-pip
+dep_pkgs += gnutls-bin
+dep_pkgs += libseccomp-dev
 
 ifeq ($(findstring check,$(MAKECMDGOALS)),)
 CHECK_ERROR := ERROR
@@ -58,7 +70,17 @@ else
 CHECK_ERROR := WARN
 endif
 
-check: _check_all
+ifeq ($(DEBIAN-OS),y)
+install-deps:
+	if [ "$(shell id -u)" -ne 0 ]; then \
+	  $(call LOG,ERROR,Please run as root); \
+	  kill -TERM $(MAKEPID); \
+	fi;
+	apt-get update -y
+	apt-get install -y --no-install-recommends $(dep_pkgs)
+endif
+
+check_targets += $(foreach bin,$(check_binss),check_$(bin)_bin)
 check_%_bin:
 	@$(call LOG,INFO,Check command:,$*)
 	if CMD=$$(command -v "$*" 2>/dev/null); then \
@@ -187,4 +209,6 @@ check_kvm_access: check_kvm
 	  fi; \
 	fi;
 
-_check_all: $(check_targets)
+check: $(check_targets)
+
+.PHONY: install-deps check check_%
