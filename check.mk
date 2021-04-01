@@ -204,7 +204,7 @@ check_debos_docker: check_docker_bin
 	    $(call LOG,PASS,Access to docker API granted. docker debos build environment is supported.); \
 	  else \
 	    $(call LOG,FAIL,No access to docker API); \
-	    $(call LOG,FAIL,Add user \"$(USER)\" to the docker group); \
+	    $(call LOG,FAIL,start the docker daemon and add user \"$(USER)\" to the docker group); \
 	    $(call LOG,FAIL,docker debos build environment is not supported); \
 	    $(CHECK_EXIT) \
 	  fi; \
