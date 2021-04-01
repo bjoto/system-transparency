@@ -1,3 +1,4 @@
+USER ?= $(shell whoami)
 LIBC_I386 := /lib/ld-linux.so.2
 GO_VERSION_MAJOR_MIN := 1
 GO_VERSION_MINOR_MIN := 13
@@ -147,11 +148,43 @@ check_debos_docker: check_docker_bin
 	    $(call LOG,OK,Access to docker API granted. docker debos build environment is supported.); \
 	  else \
 	    $(call LOG,$(CHECK_ERROR),No access to docker API); \
-	    $(call LOG,$(CHECK_ERROR),Add user \"$(shell whoami)\" to the docker group); \
+	    $(call LOG,$(CHECK_ERROR),Add user \"$(USER)\" to the docker group); \
 	    $(call LOG,$(CHECK_ERROR),docker debos build environment is not supported); \
+	    $(CHECK_EXIT) \
 	  fi; \
 	else \
 	  $(call LOG,$(CHECK_ERROR),install docker to enable docker debos build environment.);\
+	  $(CHECK_EXIT) \
+	fi;
+
+check_targets += check_kvm
+check_kvm:
+	@$(call LOG,INFO,Check for kvm virtualisation accessibility)
+	if [[ -c /dev/kvm ]]; then \
+	  $(call LOG,OK,/dev/kvm device available); \
+	else \
+	  $(call LOG,$(CHECK_ERROR),/dev/kvm device not available); \
+	  if (cat /proc/cpuinfo |grep -q hypervisor); then \
+	    $(call LOG,INFO,hypervisor virtualized environment detected:); \
+	    $(call LOG,$(CHECK_ERROR),enable nested kvm virtualisation on your host); \
+	  else \
+	    $(call LOG,INFO,bare-metal environment detected:); \
+	    $(call LOG,$(CHECK_ERROR),enable virtualisation on your host); \
+	  fi; \
+	  $(CHECK_EXIT) \
+	fi;
+
+check_targets += check_kvm_access
+check_kvm_access: check_kvm
+	if [[ -c /dev/kvm ]]; then \
+	  $(call LOG,INFO, Check /dev/kvm device writeability); \
+	  if [[ -w /dev/kvm ]]; then \
+	    $(call LOG,OK,/dev/kvm is writable by user \"$(USER)\"); \
+	  else \
+	    $(call LOG,$(CHECK_ERROR),/dev/kvm is not writable by user \"$(USER)\"); \
+	    $(call LOG,$(CHECK_ERROR),Install \"qemu-kvm\" and add user \"$(USER)\" to the kvm group); \
+	    $(CHECK_EXIT) \
+	  fi; \
 	fi;
 
 _check_all: $(check_targets)
