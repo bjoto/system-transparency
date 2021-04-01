@@ -18,7 +18,7 @@ ifeq ($(shell [[ "$(gcc_version)" -ge "9" ]] && echo $$?),0)
 tboot_env := CFLAGS=$(_TBOOT_CFLAGS) TBOOT_CFLAGS=$(_TBOOT_CFLAGS)
 endif
 
-$(tboot_code): check_hg_bin
+$(tboot_code):
 	rm -rf $(tboot-cache)
 	mkdir -p $(tboot-cache)/..
 	@$(call LOG,INFO,Get,$(tboot-url))
@@ -27,7 +27,7 @@ $(tboot_code): check_hg_bin
 	hg --cwd $(dir $@) update $(tboot-version) $(OUTREDIRECT)
 	touch $@
 
-tboot $(tboot): $(tboot_code) check_trousers_lib
+tboot $(tboot): $(tboot_code)
 	@$(call LOG,INFO,Build tboot)
 	mkdir -p $(dir $(tboot))
 	# bug: parallel build sometimes fails

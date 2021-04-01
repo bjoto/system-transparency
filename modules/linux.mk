@@ -118,7 +118,7 @@ $2: $$($1-kernel_target)
 	cp $$< $$@
 	$(call LOG,DONE,Linux/$1: kernel,$$($1-kernel_version))
 
-$$($1-kernel_target): check_gcc_bin check_flex_bin check_bison_bin check_libelf_lib $$($1-kernel_dir)/.config  $(initramfs)
+$$($1-kernel_target): $$($1-kernel_dir)/.config  $(initramfs)
 	$(call LOG,INFO,Linux/$1: Make kernel,$$($1-kernel_version))
 	$$(MAKE) -C $$($1-kernel_dir) $$(KERNEL_MAKE_FLAGS) bzImage
 
