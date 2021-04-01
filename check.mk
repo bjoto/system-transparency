@@ -12,12 +12,16 @@ HOST-KERNEL := /boot/vmlinuz-$(shell uname -r)
 KERNEL-ACCESS := $(shell [[ -r $(HOST-KERNEL) ]] && echo y)
 
 check_bins += go
+dep_pkgs += git
 check_bins += git
+dep_pkgs += pkg-config
+check_bins += pkg-config
+dep_pkgs += gcc
+check_bins += gcc
 ### linux
-check_bins += curl
 check_bins += flex
 check_bins += bison
-# libelf-dev
+dep_pkgs += libelf-dev
 check_libs += libelf
 ### tboot
 dep_pkgs += mercurial
@@ -31,6 +35,8 @@ dep_pkgs += e2tools
 check_bins += e2mkdir
 dep_pkgs += mtools
 check_bins += mmd
+## mbr bootloader installation
+dep_pkgs += libc6-i386
 ### debos
 ## native env
 ifeq ($(DEBIAN-OS),y)
@@ -134,12 +140,17 @@ check_swtpm_bin_version: check_swtpm_bin
 
 check_targets += $(foreach lib,$(check_libs),check_$(lib)_lib)
 check_%_lib:
-	@$(call LOG,INFO,Check library:,$*)
+	$(call LOG,INFO,Check library:,$*)
 	if [ -z "$(check_$*_header)" ]; then \
-	  if pkg-config "$*" >/dev/null 2>&1; then \
-	    $(call LOG,OK,library found:,$*);\
+	  if command -v "pkg-config" >/dev/null 2>&1; then \
+	    if pkg-config "$*" >/dev/null 2>&1; then \
+	      $(call LOG,OK,library found:,$*);\
+	    else \
+	      $(call LOG,$(CHECK_ERROR),library not found:,$*); \
+	      $(CHECK_EXIT) \
+	    fi; \
 	  else \
-	    $(call LOG,$(CHECK_ERROR),library not found:,$*);\
+	    $(call LOG,$(CHECK_ERROR),\"pkg-config\" required to check library:,$*); \
 	    $(CHECK_EXIT) \
 	  fi; \
 	else \
@@ -152,12 +163,13 @@ check_%_lib:
 	  fi; \
 	fi;
 
-# libc6-i386
 check_targets += check_libc_i386
 check_libc_i386:
 	@$(call LOG,INFO,Check runtime library:,libc(i386)) 
 	if [[ ! -f "$(LIBC_I386)" ]];then \
-	    $(call LOG,$(CHECK_ERROR),runtime library not found:,$(LIBC_I386));\
+	    $(call LOG,$(CHECK_ERROR),runtime library not found:,$(LIBC_I386)); \
+	    $(call LOG,$(CHECK_ERROR),Install libc runtime library for i368); \
+	    $(CHECK_EXIT) \
 	else \
 	    $(call LOG,OK,runtime library found:,libc(i386)); \
 	fi;

@@ -82,7 +82,7 @@ else
 	git -C $(debos_src) checkout --quiet $(debos_branch)
 endif
 	touch $@
-$(debos_bin): $(debos_checkout)
+$(debos_bin): check_go_bin $(debos_checkout)
 	$(call go_update,debos,$(debos_bin),$(debos_package)/cmd/debos)
 
 ### u-root/stmanager
@@ -106,14 +106,14 @@ else
 	git -C $(u-root_src) checkout --quiet $(u-root_branch)
 endif
 	touch $@
-u-root $(u-root_bin)$(GROUP_TARGET): $(u-root_checkout)
+u-root $(u-root_bin)$(GROUP_TARGET): check_go_bin_version $(u-root_checkout)
 	$(call go_update,u-root,$(u-root_bin),$(u-root_package))
-stmanager $(stmanager_bin)$(GROUP_TARGET): $(u-root_checkout)
+stmanager $(stmanager_bin)$(GROUP_TARGET): check_go_bin_version $(u-root_checkout)
 	$(call go_update,stmanager,$(stmanager_bin),$(u-root_package)/tools/stmanager)
 
 ### cpu command
 
-cpu $(cpu_bin) $(cpud_bin)$(GROUP_TARGET):
+cpu $(cpu_bin) $(cpud_bin)$(GROUP_TARGET): check_go_bin
 	@$(call LOG,INFO,Go: Get,$(cpu_package))
 	go get -d -u $(cpu_package)
 	$(call go_update,cpu,$(cpu_bin),$(cpu_package))
@@ -121,7 +121,7 @@ cpu $(cpu_bin) $(cpud_bin)$(GROUP_TARGET):
 
 ### ACM grebber
 
-sinit-acm-grebber $(sinit-acm-grebber_bin)$(GROUP_TARGET):
+sinit-acm-grebber $(sinit-acm-grebber_bin)$(GROUP_TARGET): check_go_bin
 	@$(call LOG,INFO,Go: Get,$(sinit-acm-grebber_package))
 	go get -d -u $(sinit-acm-grebber_package)
 	$(call go_update,sinit-acm-grebber,$(sinit-acm-grebber_bin),$(sinit-acm-grebber_package))

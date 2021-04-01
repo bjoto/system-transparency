@@ -14,9 +14,9 @@ os-out_files = $(shell find $(os-out) -type f -name '*' 2>/dev/null)
 $(eval $(call CONFIG_DEP,$(data_partition),ST_DATA_PARTITION_SZIZE))
 # build and sign example os-package, if directy is empty
 ifeq ($(os-out_files),)
-$(data_partition): % : %.config example-os-package
+$(data_partition): % : check_e2mkdir_bin %.config example-os-package
 else
-$(data_partition): % : %.config $(os-out) $(os-out_dirs) $(os-out_files)
+$(data_partition): % : check_e2mkdir_bin %.config $(os-out) $(os-out_dirs) $(os-out_files)
 endif
 	@$(call LOG,INFO,Build STDATA partition,$(data_partition))
 	$(common)/build_data_filesystem.sh $(OUTREDIRECT)
@@ -34,7 +34,7 @@ endif
 	@$(call LOG,DONE,LinuxBoot initramfs,$@)
 
 $(eval $(call CONFIG_DEP,$(host_config),ST_PROVISIONING_SERVER_URL|ST_NETWORK_MODE|ST_HOST_IP|ST_HOST_GATEWAY|ST_HOST_DNS))
-$(host_config): % : %.config
+$(host_config): % : check_jq_bin %.config
 	@$(call LOG,INFO,Build host configuration,$@)
 	$(common)/build_host_config.sh $(OUTREDIRECT)
 	@$(call LOG,DONE,host configuration,$@)

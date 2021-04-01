@@ -24,7 +24,7 @@ $(eval $(call CONFIG_DEP,$(mbr_kernel),ST_LINUXBOOT_CMDLINE|ST_MBR_BOOTLOADER_KE
 $(eval $(call KERNEL_TARGET,mbr,$(mbr_kernel),$(ST_MBR_BOOTLOADER_KERNEL_VERSION),$(ST_MBR_BOOTLOADER_KERNEL_CONFIG)))
 $(mbr_kernel): % : %.config
 
-$(syslinux):
+$(syslinux): check_libc_i386
 	$(call LOG,INFO,Fetch syslinux,$@)
 	$(mbr)/fetch_syslinux.sh $(OUTREDIRECT)
 	$(call LOG,DONE,syslinux,$@)
