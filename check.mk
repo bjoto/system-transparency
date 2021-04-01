@@ -20,7 +20,9 @@ check_bins += pkg-config
 dep_pkgs += gcc
 check_bins += gcc
 ### linux
+dep_pkgs += flex
 check_bins += flex
+dep_pkgs += bison
 check_bins += bison
 dep_pkgs += libelf-dev
 check_libs += libelf
@@ -31,6 +33,7 @@ dep_pkgs += libtspi-dev
 check_libs += trousers
 check_trousers_header += trousers/tss.h
 ### stboot-installation
+dep_pkgs += jq
 check_bins += jq
 dep_pkgs += e2tools
 check_bins += e2mkdir
@@ -46,6 +49,7 @@ check_libs += glib-2.0
 check_libs += gobject-2.0
 dep_pkgs += libostree-dev
 check_libs += ostree-1
+dep_pkgs += debootstrap
 check_bins += debootstrap
 dep_pkgs += systemd-container
 check_bins += systemd-nspawn
@@ -84,7 +88,9 @@ install-deps:
 	  $(call LOG,ERROR,Please run as root); \
 	  exit 1; \
 	fi;
-	$(call LOG,INFO,Install dependencies:,$(dep_pkgs))
+	$(call LOG,WARN,need manually installation:,go(>=$(GO_VERSION_MIN)))
+	$(call LOG,WARN,need manually installation:,swtpm(>=$(SWTPM_VERSION_MIN)) [https://github.com/stefanberger/swtpm])
+	$(call LOG,INFO,install dependencies:,$(dep_pkgs))
 	apt-get update -yqq
 	apt-get install -yqq --no-install-recommends $(dep_pkgs)
 	$(call LOG,DONE,dependencies installed)
@@ -179,7 +185,7 @@ check_debos_native:
 	@$(call LOG,INFO,check if OS is debian based)
 	if ([[ -f /etc/os-release ]] && sed -n "s/^ID.*=\(.*\)$$/\1/p" /etc/os-release |grep -q debian); then \
 	  $(call LOG,PASS,OS is debian based); \
-	  $(call LOG,INFO,heck if host kernel is readable:,$(HOST-KERNEL)); \
+	  $(call LOG,INFO,check if host kernel is readable:,$(HOST-KERNEL)); \
 	  if [[ -r "$(HOST-KERNEL)" ]]; then \
 	    $(call LOG,INFO,host kernel is readable); \
 	    $(call LOG,PASS,native debos build environment is supported.); \
