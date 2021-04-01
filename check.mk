@@ -32,6 +32,8 @@ check_bins += hg
 dep_pkgs += libtspi-dev
 check_libs += trousers
 check_trousers_header += trousers/tss.h
+check_libs += zlib
+check_libs += libcrypto
 ### stboot-installation
 dep_pkgs += jq
 check_bins += jq
@@ -163,7 +165,7 @@ check_%_lib:
 	  if (printf "#include <$(check_$*_header)>\n" | gcc -x c - -Wl,--defsym=main=0 -o /dev/null >/dev/null 2>&1); then \
 	    $(call LOG,PASS,library found:,$*); \
 	  else \
-	    $(call LOG,FAIL,library header not found:,$(check_$*_header)); \
+	    $(call LOG,FAIL,library not found:,$*); \
 	    $(CHECK_EXIT) \
 	  fi; \
 	fi;
