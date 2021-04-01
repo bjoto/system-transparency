@@ -44,18 +44,23 @@ endif
 
 ## logging color
 ifneq ($(TERM),)
-NORMAL_COLOR = $(shell tput sgr0 2>/dev/null)
-#green
-DONE_COLOR = $(shell tput setaf 2 2>/dev/null)
-OK_COLOR = $(DONE_COLOR)
-# blue
-INFO_COLOR = $(shell tput setaf 4 2>/dev/null)
-# yellow
-WARN_COLOR = $(shell tput setaf 3 2>/dev/null)
-# red
-ERROR_COLOR = $(shell tput setaf 1 2>/dev/null)
-# cyan
-FILE_COLOR = $(shell tput setaf 6 2>/dev/null)
+# all colors
+NORMAL = $(shell tput sgr0 2>/dev/null)
+RED = $(shell tput setaf 1 2>/dev/null)
+GREEN = $(shell tput setaf 2 2>/dev/null)
+YELLOW = $(shell tput setaf 3 2>/dev/null)
+BLUE = $(shell tput setaf 4 2>/dev/null)
+#MAGENTA = $(shell tput setaf 5 2>/dev/null)
+CYAN = $(shell tput setaf 6 2>/dev/null)
+# log types
+INFO_COLOR = $(BLUE)
+DONE_COLOR = $(GREEN)
+WARN_COLOR = $(YELLOW)
+ERROR_COLOR = $(RED)
+FILE_COLOR = $(CYAN)
+# check logs
+PASS_COLOR = $(GREEN)
+FAIL_COLOR = $(RED)
 endif
 
 ## LOG
@@ -66,7 +71,7 @@ endif
 # $3 = file/path (optional)
 #
 define LOG
-printf "[%s] $2 %s\n" "$($1_COLOR)$1$(NORMAL_COLOR)" "$(FILE_COLOR)$3$(NORMAL_COLOR)"
+printf "[%s] $2 %s\n" "$($1_COLOR)$1$(NORMAL)" "$(FILE_COLOR)$3$(NORMAL)"
 endef
 
 # Make is silent per default, but 'make V=1' will show all compiler calls.
@@ -119,7 +124,6 @@ CPU_KEY_DIR := $(out)/keys/cpu_keys/
 CPU_SSH_FILES := cpu_rsa cpu_rsa.pub ssh_host_rsa_key ssh_host_rsa_key.pub
 CPU_SSH_KEYS += $(foreach CPU_SSH_FILE,$(CPU_SSH_FILES),$(CPU_KEY_DIR)/$(CPU_SSH_FILE))
 
-
 ## error if OS packages are missing
 # args:
 # $1 = target
@@ -169,8 +173,7 @@ $(DOTCONFIG):
 	@echo '*** Please provide a config file of run "make config BOARD=<target>"'
 	@echo '*** to generate the default configuration.'
 	@echo
-	kill -TERM $(MAKEPID)
-
+	@exit 1
 
 ifneq ($(strip $(ST_OS_PKG_KERNEL)),)
 OS_KERNEL := $(patsubst "%",%,$(ST_OS_PKG_KERNEL))

@@ -82,7 +82,7 @@ else
 	git -C $(debos_src) checkout --quiet $(debos_branch)
 endif
 	touch $@
-$(debos_bin): check_go_bin $(debos_checkout)
+$(debos_bin): check_go_bin check_glib-2.0_lib check_gobject-2.0_lib check_ostree-1_lib $(debos_checkout)
 	$(call go_update,debos,$(debos_bin),$(debos_package)/cmd/debos)
 
 ### u-root/stmanager
