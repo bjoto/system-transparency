@@ -9,13 +9,11 @@ jobs:
   ubuntu-latest_build:
     runs-on: ubuntu-latest
     steps:
-      - name: Install dependencies
+      - name: Install base packages
         run: |
-          DEBIAN_FRONTEND=noninteractive sudo apt-get -qq update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get -qqy update
           DEBIAN_FRONTEND=noninteractive sudo apt-get -qqy install \
-          git make flex bison bc rsync wget gpg libelf-dev \
-          dosfstools mtools e2tools parted udev
-          DEBIAN_FRONTEND=noninteractive sudo apt-get clean
+          git make wget
 
       - name: Install Golang 1.13
         run: |
@@ -29,6 +27,10 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo make install-deps
 
       - name: Build default config
         run: |

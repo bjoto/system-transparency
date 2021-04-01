@@ -12,6 +12,7 @@ HOST-KERNEL := /boot/vmlinuz-$(shell uname -r)
 KERNEL-ACCESS := $(shell [[ -r $(HOST-KERNEL) ]] && echo y)
 
 check_bins += go
+check_bins += git
 ### linux
 check_bins += curl
 check_bins += flex
@@ -26,8 +27,10 @@ check_libs += trousers
 check_trousers_header += trousers/tss.h
 ### stboot-installation
 check_bins += jq
-# e2tools
+dep_pkgs += e2tools
 check_bins += e2mkdir
+dep_pkgs += mtools
+check_bins += mmd
 ### debos
 ## native env
 ifeq ($(DEBIAN-OS),y)
@@ -76,11 +79,13 @@ install-deps:
 	  $(call LOG,ERROR,Please run as root); \
 	  kill -TERM $(MAKEPID); \
 	fi;
-	apt-get update -y
-	apt-get install -y --no-install-recommends $(dep_pkgs)
+	$(call LOG,INFO,Install dependencies:,$(dep_pkgs))
+	apt-get update -yqq
+	apt-get install -yqq --no-install-recommends $(dep_pkgs)
+	$(call LOG,DONE,dependencies installed)
 endif
 
-check_targets += $(foreach bin,$(check_binss),check_$(bin)_bin)
+check_targets += $(foreach bin,$(check_bins),check_$(bin)_bin)
 check_%_bin:
 	@$(call LOG,INFO,Check command:,$*)
 	if CMD=$$(command -v "$*" 2>/dev/null); then \
@@ -92,34 +97,38 @@ check_%_bin:
 
 check_targets += check_go_bin_version
 check_go_bin_version: check_go_bin
-	@$(call LOG,INFO,Check Go version)
-	$(eval GO_VERSION := $(shell go version | sed -nr 's/.*go([0-9]+\.[0-9]+.?[0-9]?).*/\1/p'))
-	$(eval GO_VERSION_MAJOR := $(shell echo $(GO_VERSION) | cut -d . -f 1))
-	$(eval GO_VERSION_MINOR := $(shell echo $(GO_VERSION) | cut -d . -f 2))
-	if [ "$(GO_VERSION_MAJOR)" -gt "$(GO_VERSION_MAJOR_MIN)" ] || \
-	([ "$(GO_VERSION_MAJOR)" -eq "$(GO_VERSION_MAJOR_MIN)" ] && \
-	[ "$(GO_VERSION_MINOR)" -ge "$(GO_VERSION_MINOR_MIN)" ]); then \
-	  $(call LOG,OK,Go version \"$(GO_VERSION)\" supported); \
-	else \
-	  $(call LOG,$(CHECK_ERROR),Go version \"$(GO_VERSION)\" is not supported); \
-	  $(call LOG,$(CHECK_ERROR),Needs version \"$(GO_VERSION_MIN)\" or later.); \
-	  $(CHECK_EXIT) \
+	$(eval GO_VERSION := $(shell go version 2>/dev/null | sed -nr 's/.*go([0-9]+\.[0-9]+.?[0-9]?).*/\1/p'))
+	$(eval GO_VERSION_MAJOR := $(shell echo $(GO_VERSION) | cut -d . -f 1)) \
+	$(eval GO_VERSION_MINOR := $(shell echo $(GO_VERSION) | cut -d . -f 2)) \
+	if command -v "go" >/dev/null 2>&1; then \
+	  $(call LOG,INFO,Check Go version); \
+	  if [ "$(GO_VERSION_MAJOR)" -gt "$(GO_VERSION_MAJOR_MIN)" ] || \
+	  ([ "$(GO_VERSION_MAJOR)" -eq "$(GO_VERSION_MAJOR_MIN)" ] && \
+	  [ "$(GO_VERSION_MINOR)" -ge "$(GO_VERSION_MINOR_MIN)" ]); then \
+	    $(call LOG,OK,Go version \"$(GO_VERSION)\" supported); \
+	  else \
+	    $(call LOG,$(CHECK_ERROR),Go version \"$(GO_VERSION)\" is not supported); \
+	    $(call LOG,$(CHECK_ERROR),Needs version \"$(GO_VERSION_MIN)\" or later.); \
+	    $(CHECK_EXIT) \
+	  fi; \
 	fi;
 
 check_targets += check_swtpm_bin_version
 check_swtpm_bin_version: check_swtpm_bin
-	@$(call LOG,INFO,Check swtpm version)
-	$(eval SWTPM_VERSION := $(shell swtpm --version | cut -d ' ' -f 4 | sed 's/,//'))
+	$(eval SWTPM_VERSION := $(shell swtpm --version 2>/dev/null | cut -d ' ' -f 4 | sed 's/,//'))
 	$(eval SWTPM_VERSION_MAJOR := $(shell echo $(SWTPM_VERSION) | cut -d . -f 1))
 	$(eval SWTPM_VERSION_MINOR := $(shell echo $(SWTPM_VERSION) | cut -d . -f 2))
-	if [ "$(SWTPM_VERSION_MAJOR)" -gt "$(SWTPM_VERSION_MAJOR_MIN)" ] || \
-	([ "$(SWTPM_VERSION_MAJOR)" -eq "$(SWTPM_VERSION_MAJOR_MIN)" ] && \
-	[ "$(SWTPM_VERSION_MINOR)" -ge "$(SWTPM_VERSION_MINOR_MIN)" ]); then \
-	  $(call LOG,OK,swtpm version \"$(SWTPM_VERSION)\" supported); \
-	else \
-	  $(call LOG,$(CHECK_ERROR),swtpm version \"$(SWTPM_VERSION)\" is not supported); \
-	  $(call LOG,$(CHECK_ERROR),Needs version \"$(SWTPM_VERSION_MIN)\" or later.); \
-	  $(CHECK_EXIT) \
+	if command -v "swtpm" >/dev/null 2>&1; then \
+	  $(call LOG,INFO,Check swtpm version); \
+	  if [ "$(SWTPM_VERSION_MAJOR)" -gt "$(SWTPM_VERSION_MAJOR_MIN)" ] || \
+	  ([ "$(SWTPM_VERSION_MAJOR)" -eq "$(SWTPM_VERSION_MAJOR_MIN)" ] && \
+	  [ "$(SWTPM_VERSION_MINOR)" -ge "$(SWTPM_VERSION_MINOR_MIN)" ]); then \
+	    $(call LOG,OK,swtpm version \"$(SWTPM_VERSION)\" supported); \
+	  else \
+	    $(call LOG,$(CHECK_ERROR),swtpm version \"$(SWTPM_VERSION)\" is not supported); \
+	    $(call LOG,$(CHECK_ERROR),Needs version \"$(SWTPM_VERSION_MIN)\" or later.); \
+	    $(CHECK_EXIT) \
+	  fi; \
 	fi;
 
 

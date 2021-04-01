@@ -44,18 +44,18 @@ endif
 
 ## logging color
 ifneq ($(TERM),)
-NORMAL_COLOR = $(shell tput sgr0)
+NORMAL_COLOR = $(shell tput sgr0 2>/dev/null)
 #green
-DONE_COLOR = $(shell tput setaf 2)
+DONE_COLOR = $(shell tput setaf 2 2>/dev/null)
 OK_COLOR = $(DONE_COLOR)
 # blue
-INFO_COLOR = $(shell tput setaf 4)
+INFO_COLOR = $(shell tput setaf 4 2>/dev/null)
 # yellow
-WARN_COLOR = $(shell tput setaf 3)
+WARN_COLOR = $(shell tput setaf 3 2>/dev/null)
 # red
-ERROR_COLOR = $(shell tput setaf 1)
+ERROR_COLOR = $(shell tput setaf 1 2>/dev/null)
 # cyan
-FILE_COLOR = $(shell tput setaf 6)
+FILE_COLOR = $(shell tput setaf 6 2>/dev/null)
 endif
 
 ## LOG
