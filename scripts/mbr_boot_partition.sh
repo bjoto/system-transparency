@@ -106,7 +106,7 @@ syslinux_efi64="${syslinux_dir}/efi64/efi/syslinux.efi"
 efi64_name="BOOTX64.EFI"
 
 echo "Creating VFAT filesystems for STBOOT partition:"
-size_vfat=$((12*(1<<20)))
+size_vfat=$((128*(1<<20)))
 
 echo "Using kernel: ${linuxboot_kernel}"
 
