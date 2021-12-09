@@ -81,7 +81,7 @@ mkdir -p "$(dirname "${output}")"
 ########################################
 
 echo "Creating VFAT filesystems for STBOOT partition:"
-size_vfat=$((12*(1<<20)))
+size_vfat=$((24*(1<<20)))
 
 echo "Using kernel: ${linuxboot_kernel}"
 
